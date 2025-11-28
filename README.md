@@ -1,5 +1,5 @@
-# CoBRA
+# MCDP_MAMBA
 
-Coupled Bi-Mamba Replacement of Attention
+Multiplicatively Coupled Dual Path MAMBA Replacement of Attention
 
 Paper Coming Soon
