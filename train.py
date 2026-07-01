@@ -11,12 +11,12 @@ from mcdpmamba import MCDPMAMBA
 # data transforms
 
 transform = Compose([
-RandomCrop(32, padding=4),
-RandomHorizontalFlip(), 
+ 
 ToTensor(),
 Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
 
 ])
+
 
 training_data = datasets.CIFAR10(
                                        root='data',
