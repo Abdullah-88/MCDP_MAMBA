@@ -8,7 +8,6 @@ from math import ceil
 from mamba import Mamba, MambaConfig
 
 
-
 class FeedForward(nn.Module):
     def __init__(self, dim, hidden_dim, dropout):
         super().__init__()
