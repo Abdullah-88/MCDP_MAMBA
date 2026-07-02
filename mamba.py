@@ -9,7 +9,6 @@ import torch.nn.functional as F
 from pscan import pscan
 
 
-
 @dataclass
 class MambaConfig:
     d_model: int 
