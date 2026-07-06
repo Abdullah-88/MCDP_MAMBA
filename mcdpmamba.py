@@ -7,7 +7,6 @@ from einops import rearrange, reduce
 from math import ceil
 from mamba import Mamba, MambaConfig
 
-
 class FeedForward(nn.Module):
     def __init__(self, dim, hidden_dim, dropout):
         super().__init__()
@@ -21,11 +20,6 @@ class FeedForward(nn.Module):
     def forward(self, x):
         return self.net(x)
 
-
-
-
-
-
 class MCGatingUnit(nn.Module):
     def __init__(self,d_model,d_ffn,dropout):
         super().__init__()
@@ -36,8 +30,6 @@ class MCGatingUnit(nn.Module):
 
         self.COB_2 = Mamba(self.config)
 	
-       
-
     def forward(self, x):
         u, v = x, x 
         u = self.COB_1(u)  
@@ -45,9 +37,8 @@ class MCGatingUnit(nn.Module):
         out = u * v
         return out
 
-
 class MCDPMAMBABlock(nn.Module):
-    def __init__(self, d_model, d_ffn,dropout):
+    def __init__(self, d_model, d_ffn, dropout):
         super().__init__()
        
         self.norm = nn.LayerNorm(d_model)       
@@ -64,23 +55,14 @@ class MCDPMAMBABlock(nn.Module):
         out = x + residual
         return out
 
-
-
-
-
-
-
-
-
 class MCDPMAMBA(nn.Module):
-    def __init__(self, d_model, d_ffn, num_layers,dropout):
+    def __init__(self, d_model, d_ffn, num_layers, dropout):
         super().__init__()
         
         self.model = nn.Sequential(
             
-            *[MCDPMAMBABlock(d_model,d_ffn,dropout) for _ in range(num_layers)],
-            
-            
+            *[MCDPMAMBABlock(d_model, d_ffn, dropout) for _ in range(num_layers)],
+                        
         )
 
     def forward(self, x):
@@ -88,10 +70,3 @@ class MCDPMAMBA(nn.Module):
         x = self.model(x)
         
         return x
-
-
-
-
-
-
-
