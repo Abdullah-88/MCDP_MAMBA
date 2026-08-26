@@ -21,10 +21,10 @@ class FeedForward(nn.Module):
         return self.net(x)
 
 class MCGatingUnit(nn.Module):
-    def __init__(self,d_model,d_ffn,dropout):
+    def __init__(self, d_model, d_ffn, dropout):
         super().__init__()
         
-        self.config = MambaConfig(d_model=d_model, n_layers=1)
+        self.config = MambaConfig(d_model = d_model, n_layers = 1)
     
         self.COB_1 = Mamba(self.config)
 
@@ -42,8 +42,8 @@ class MCDPMAMBABlock(nn.Module):
         super().__init__()
        
         self.norm = nn.LayerNorm(d_model)       
-        self.mcgu = MCGatingUnit(d_model,d_ffn,dropout)
-        self.ffn = FeedForward(d_model,d_ffn,dropout)
+        self.mcgu = MCGatingUnit(d_model, d_ffn, dropout)
+        self.ffn = FeedForward(d_model, d_ffn, dropout)
     def forward(self, x):
         residual = x
         x = self.norm(x)
