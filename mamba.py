@@ -78,17 +78,17 @@ class MambaBlock(nn.Module):
 
         self.config = config
        
-        self.in_proj = nn.Linear(config.d_model, 2 * config.d_inner, bias=config.bias)
+        self.in_proj = nn.Linear(config.d_model, 2 * config.d_inner, bias = config.bias)
 
-        self.conv1d = nn.Conv1d(in_channels=config.d_inner, out_channels=config.d_inner, 
-                              kernel_size=config.d_conv, bias=config.conv_bias, 
-                              groups=config.d_inner,
-                              padding=config.d_conv - 1)
+        self.conv1d = nn.Conv1d(in_channels = config.d_inner, out_channels = config.d_inner, 
+                              kernel_size = config.d_conv, bias = config.conv_bias, 
+                              groups = config.d_inner,
+                              padding = config.d_conv - 1)
         
        
-        self.x_proj = nn.Linear(config.d_inner, config.dt_rank + 2 * config.d_state, bias=False)
+        self.x_proj = nn.Linear(config.d_inner, config.dt_rank + 2 * config.d_state, bias = False)
        
-        self.dt_proj = nn.Linear(config.dt_rank, config.d_inner, bias=True)
+        self.dt_proj = nn.Linear(config.dt_rank, config.d_inner, bias = True)
        
         dt_init_std = config.dt_rank**-0.5 * config.dt_scale
         if config.dt_init == "constant":
@@ -105,18 +105,18 @@ class MambaBlock(nn.Module):
         with torch.no_grad():
             self.dt_proj.bias.copy_(inv_dt)
       
-        A = torch.arange(1, config.d_state + 1, dtype=torch.float32).repeat(config.d_inner, 1)
+        A = torch.arange(1, config.d_state + 1, dtype = torch.float32).repeat(config.d_inner, 1)
         self.A_log = nn.Parameter(torch.log(A))
         self.D = nn.Parameter(torch.ones(config.d_inner))
       
-        self.out_proj = nn.Linear(config.d_inner, config.d_model, bias=config.bias)
+        self.out_proj = nn.Linear(config.d_inner, config.d_model, bias = config.bias)
 
     def forward(self, x):
         
         _, L, _ = x.shape
 
         xz = self.in_proj(x) 
-        x, z = xz.chunk(2, dim=-1) 
+        x, z = xz.chunk(2, dim = -1) 
       
         x = x.transpose(1, 2) 
         x = self.conv1d(x)[:, :, :L] 
@@ -139,7 +139,7 @@ class MambaBlock(nn.Module):
       
         deltaBC = self.x_proj(x) 
 
-        delta, B, C = torch.split(deltaBC, [self.config.dt_rank, self.config.d_state, self.config.d_state], dim=-1) 
+        delta, B, C = torch.split(deltaBC, [self.config.dt_rank, self.config.d_state, self.config.d_state], dim = -1) 
         delta = F.softplus(self.dt_proj(delta)) 
 
         if self.config.pscan:
@@ -173,7 +173,7 @@ class MambaBlock(nn.Module):
 
         BX = deltaB * (x.unsqueeze(-1)) 
 
-        h = torch.zeros(x.size(0), self.config.d_inner, self.config.d_state, device=deltaA.device) 
+        h = torch.zeros(x.size(0), self.config.d_inner, self.config.d_state, device = deltaA.device) 
         hs = []
 
         for t in range(0, L):
@@ -193,10 +193,10 @@ class MambaBlock(nn.Module):
         h, inputs = cache
         
         xz = self.in_proj(x) 
-        x, z = xz.chunk(2, dim=1) 
+        x, z = xz.chunk(2, dim = 1) 
        
         x_cache = x.unsqueeze(2)
-        x = self.conv1d(torch.cat([inputs, x_cache], dim=2))[:, :, self.config.d_conv-1] 
+        x = self.conv1d(torch.cat([inputs, x_cache], dim = 2))[:, :, self.config.d_conv-1] 
 
         x = F.silu(x)
         y, h = self.ssm_step(x, h)
@@ -206,7 +206,7 @@ class MambaBlock(nn.Module):
         output = y * z
         output = self.out_proj(output) 
         
-        inputs = torch.cat([inputs[:, :, 1:], x_cache], dim=2) 
+        inputs = torch.cat([inputs[:, :, 1:], x_cache], dim = 2) 
         cache = (h, inputs)
         
         return output, cache
@@ -218,7 +218,7 @@ class MambaBlock(nn.Module):
        
         deltaBC = self.x_proj(x) 
 
-        delta, B, C = torch.split(deltaBC, [self.config.dt_rank, self.config.d_state, self.config.d_state], dim=-1) 
+        delta, B, C = torch.split(deltaBC, [self.config.dt_rank, self.config.d_state, self.config.d_state], dim = -1) 
         delta = F.softplus(self.dt_proj(delta)) 
 
         deltaA = torch.exp(delta.unsqueeze(-1) * A) 
@@ -227,7 +227,7 @@ class MambaBlock(nn.Module):
         BX = deltaB * (x.unsqueeze(-1)) 
 
         if h is None:
-            h = torch.zeros(x.size(0), self.config.d_inner, self.config.d_state, device=deltaA.device) 
+            h = torch.zeros(x.size(0), self.config.d_inner, self.config.d_state, device = deltaA.device) 
 
         h = deltaA * h + BX 
 
@@ -245,6 +245,6 @@ class RMSNorm(nn.Module):
         self.weight = nn.Parameter(torch.ones(d_model))
 
     def forward(self, x):
-        output = x * torch.rsqrt(x.pow(2).mean(-1, keepdim=True) + self.eps) * self.weight
+        output = x * torch.rsqrt(x.pow(2).mean(-1, keepdim = True) + self.eps) * self.weight
 
         return output
